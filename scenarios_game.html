@@ -1,526 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المواقف العملية - منازل الإحسان</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --primary: #2C5F2D;
-            --secondary: #97BC62;
-            --accent: #E8B86D;
-        }
-        
-        body {
-            font-family: 'Segoe UI', 'Dubai', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            direction: rtl;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-        
-        .header {
-            background: white;
-            padding: 40px;
-            border-radius: 20px 20px 0 0;
-            text-align: center;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-        }
-        
-        .header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: #718096;
-            font-size: 1.2em;
-        }
-        
-        .score-display {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            padding: 20px;
-            text-align: center;
-            color: #5a3e00;
-        }
-        
-        .score-display h2 {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-        
-        .score-number {
-            font-size: 3em;
-            font-weight: bold;
-        }
-        
-        .game-card {
-            background: white;
-            padding: 40px;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .scenario {
-            display: none;
-        }
-        
-        .scenario.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .scenario-icon {
-            font-size: 4em;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .manzil-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        
-        .scenario-text {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            font-size: 1.2em;
-            line-height: 1.8;
-            color: #2d3748;
-            margin-bottom: 30px;
-            border-right: 5px solid #667eea;
-        }
-        
-        .choices {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .choice {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-        }
-        
-        .choice:hover {
-            border-color: #667eea;
-            transform: translateX(-5px);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        }
-        
-        .choice.correct {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%);
-            border-color: #28a745;
-        }
-        
-        .choice.incorrect {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%);
-            border-color: #dc3545;
-        }
-        
-        .feedback {
-            display: none;
-            margin-top: 20px;
-            padding: 25px;
-            border-radius: 15px;
-            animation: slideDown 0.5s ease;
-        }
-        
-        .feedback.active {
-            display: block;
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; max-height: 0; }
-            to { opacity: 1; max-height: 500px; }
-        }
-        
-        .feedback.correct-feedback {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
-            border-right: 5px solid #28a745;
-        }
-        
-        .feedback.incorrect-feedback {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 107, 107, 0.1) 100%);
-            border-right: 5px solid #dc3545;
-        }
-        
-        .feedback h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-        
-        .feedback.correct-feedback h3 {
-            color: #28a745;
-        }
-        
-        .feedback.incorrect-feedback h3 {
-            color: #dc3545;
-        }
-        
-        .feedback p {
-            line-height: 1.8;
-            color: #2d3748;
-        }
-        
-        .next-button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.3em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: none;
-        }
-        
-        .next-button.active {
-            display: block;
-        }
-        
-        .next-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .results {
-            display: none;
-            text-align: center;
-        }
-        
-        .results.active {
-            display: block;
-        }
-        
-        .results-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-        }
-        
-        .results h2 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        
-        .final-score {
-            font-size: 4em;
-            font-weight: bold;
-            color: #ffd700;
-            margin: 20px 0;
-        }
-        
-        .results-message {
-            font-size: 1.3em;
-            color: #2d3748;
-            margin: 20px 0;
-            line-height: 1.8;
-        }
-        
-        .action-buttons {
-            display: grid;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .action-button {
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: block;
-            text-align: center;
-        }
-        
-        .action-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎭 لعبة المواقف العملية</h1>
-            <p>اختبر فهمك لمنازل الإحسان من خلال مواقف حقيقية</p>
-        </div>
-        
-        <div class="score-display">
-            <h2>نقاطك</h2>
-            <div class="score-number" id="score">0</div>
-        </div>
-        
-        <div class="game-card">
-            <div id="scenarios-container"></div>
-            <div class="results" id="results"></div>
-        </div>
-    </div>
-
-    <script>
-        const scenarios = [
-            {
-                manzil: "التقوى",
-                icon: "🌙",
-                situation: "في اجتماع مهم، طلب منك مديرك تقديم تقرير عن مشروع لم تكمله بعد. كيف تتصرف؟",
-                choices: [
-                    { text: "تقول الحقيقة أنك لم تكمل التقرير وتطلب مهلة إضافية", correct: true },
-                    { text: "تقدم معلومات جزئية وتوهم المدير أن العمل شبه مكتمل", correct: false },
-                    { text: "تلقي اللوم على زميل أو ظرف خارجي", correct: false },
-                    { text: "تعد بإنهائه قريباً دون ذكر التأخير الحقيقي", correct: false }
-                ],
-                correctFeedback: "ممتاز! الصدق والأمانة هما جوهر التقوى. حتى في المواقف الصعبة، الحق أحق أن يتبع.",
-                incorrectFeedback: "التقوى تعني الصدق حتى في المواقف الصعبة. الكذب أو التضليل يهدم الثقة ويخالف أمر الله."
-            },
-            {
-                manzil: "اليقين",
-                icon: "✨",
-                situation: "علمت أن الشركة تخطط لتقليص الموظفين بسبب أزمة مالية. ماذا تفعل؟",
-                choices: [
-                    { text: "تثق أن الله سيحفظك وتستمر في أداء عملك بإتقان", correct: true },
-                    { text: "تبدأ فوراً بالبحث عن وظيفة أخرى وتهمل عملك الحالي", correct: false },
-                    { text: "تشعر بقلق شديد يمنعك من النوم والتركيز", correct: false },
-                    { text: "تحاول إظهار نفسك بشكل مبالغ فيه لتضمن بقاءك", correct: false }
-                ],
-                correctFeedback: "رائع! اليقين يعني الثقة المطلقة بأن الله هو الرزاق. القلق الزائد ينافي اليقين بحكمة الله.",
-                incorrectFeedback: "اليقين الصحيح يجمع بين الأخذ بالأسباب والثقة التامة بالله. القلق المفرط يدل على ضعف اليقين."
-            },
-            {
-                manzil: "التوكل",
-                icon: "🤲",
-                situation: "قدمت اقتراحاً مهماً في العمل. قام مديرك بتأجيل النظر فيه. كيف تشعر؟",
-                choices: [
-                    { text: "تشعر بالراحة لأنك بذلت جهدك والنتيجة بيد الله", correct: true },
-                    { text: "تشعر بإحباط شديد وتفقد الحماس للعمل", correct: false },
-                    { text: "تضغط على مديرك باستمرار لاتخاذ قرار", correct: false },
-                    { text: "تشكك في قيمة اقتراحك وتلوم نفسك", correct: false }
-                ],
-                correctFeedback: "ممتاز! التوكل الحقيقي هو بذل الجهد ثم تفويض الأمر لله دون قلق زائد على النتيجة.",
-                incorrectFeedback: "التوكل يعني الجمع بين العمل الجاد والاطمئنان القلبي. القلق الزائد على النتائج ينافي التوكل."
-            },
-            {
-                manzil: "التسليم",
-                icon: "🕊️",
-                situation: "تم نقلك إلى قسم آخر بدون استشارتك. ما موقفك؟",
-                choices: [
-                    { text: "تتقبل القرار بصدر رحب وتبحث عن الحكمة فيه", correct: true },
-                    { text: "تشتكي وتتذمر باستمرار لزملائك", correct: false },
-                    { text: "تقدم استقالتك احتجاجاً على القرار", correct: false },
-                    { text: "تعمل بكسل وإهمال في المكان الجديد", correct: false }
-                ],
-                correctFeedback: "رائع! التسليم يعني القبول الإيجابي لما لا نستطيع تغييره مع البحث عن الخير فيه.",
-                incorrectFeedback: "التسليم الحقيقي يتطلب قبول القرارات بصدر رحب والبحث عن الحكمة الإلهية فيها."
-            },
-            {
-                manzil: "الرضا",
-                icon: "😌",
-                situation: "زميلك حصل على ترقية ومكافأة كنت تتوقعها أنت. كيف تتعامل مع الموقف؟",
-                choices: [
-                    { text: "تهنئه بصدق وتشكر الله على ما عندك", correct: true },
-                    { text: "تشعر بالغيرة وتتجنب الحديث معه", correct: false },
-                    { text: "تقارن نفسك به باستمرار وتشعر بالظلم", correct: false },
-                    { text: "تبحث عن أخطائه أمام المدير", correct: false }
-                ],
-                correctFeedback: "ممتاز! الرضا يعني الشكر على ما عندك والفرح لإخوانك دون مقارنات تؤذي القلب.",
-                incorrectFeedback: "الرضا الحقيقي يتطلب الشكر على النعم وعدم المقارنة بالآخرين. الحسد يهدم السكينة."
-            },
-            {
-                manzil: "العبودية",
-                icon: "🙏",
-                situation: "طُلب منك العمل في مشروع لن يُذكر اسمك فيه علناً. كيف تتعامل؟",
-                choices: [
-                    { text: "تعمل بإخلاص لأن الله يرى عملك", correct: true },
-                    { text: "تعمل بكسل لأنه لن يُعترف بجهدك", correct: false },
-                    { text: "ترفض المشاركة إلا إذا ذُكر اسمك", correct: false },
-                    { text: "تعمل لكن بدون حماس حقيقي", correct: false }
-                ],
-                correctFeedback: "رائع! العبودية الحقة تعني العمل لله وحده، بغض النظر عن اعتراف الناس.",
-                incorrectFeedback: "العمل لله يعني الإخلاص بغض النظر عن التقدير البشري. العمل للشهرة ينافي الإخلاص."
-            },
-            {
-                manzil: "محبة الله",
-                icon: "❤️",
-                situation: "عُرضت عليك وظيفة براتب أعلى لكنها تتطلب التنازل عن بعض القيم الإسلامية. ماذا تختار؟",
-                choices: [
-                    { text: "ترفض الوظيفة حباً في الله ورضاه", correct: true },
-                    { text: "تقبل وتبرر لنفسك أن الظروف صعبة", correct: false },
-                    { text: "تفاوض لتقليل التنازلات قدر الإمكان", correct: false },
-                    { text: "تقبل مؤقتاً حتى تجد بديلاً أفضل", correct: false }
-                ],
-                correctFeedback: "ممتاز! محبة الله الحقة تجعلك تقدم رضاه على كل شيء، حتى المال والمنصب.",
-                incorrectFeedback: "محبة الله الحقيقية تعني تقديم رضاه على كل مصلحة دنيوية. لا مساومة في الثوابت."
-            },
-            {
-                manzil: "التقوى",
-                icon: "🌙",
-                situation: "لاحظت خطأ في تقرير سيقدمه زميلك للإدارة. هذا الخطأ قد يفيدك. ماذا تفعل؟",
-                choices: [
-                    { text: "تخبر زميلك بالخطأ لمساعدته", correct: true },
-                    { text: "تتجاهل الأمر لأنه ليس من مسؤوليتك", correct: false },
-                    { text: "تنتظر حتى يُكتشف الخطأ لتبدو أفضل", correct: false },
-                    { text: "تخبر المدير قبل أن تخبر زميلك", correct: false }
-                ],
-                correctFeedback: "رائع! التقوى تعني النصح والإحسان للآخرين حتى لو لم يكن في مصلحتك الشخصية.",
-                incorrectFeedback: "التقوى الحقيقية تتطلب النصح والإحسان للآخرين. الغش والخديعة تنافي التقوى."
-            }
-        ];
-
-        let currentScenario = 0;
-        let score = 0;
-        let answered = false;
-
-        function renderScenario() {
-            const container = document.getElementById('scenarios-container');
-            const scenario = scenarios[currentScenario];
-            
-            const html = `
-                <div class="scenario active">
-                    <div class="scenario-icon">${scenario.icon}</div>
-                    <div class="manzil-badge">${scenario.manzil}</div>
-                    <div class="scenario-text">${scenario.situation}</div>
-                    <div class="choices">
-                        ${scenario.choices.map((choice, index) => `
-                            <div class="choice" onclick="selectChoice(${index})">
-                                ${choice.text}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="feedback" id="feedback"></div>
-                    <button class="next-button" id="next-button" onclick="nextScenario()">
-                        ${currentScenario === scenarios.length - 1 ? 'عرض النتائج 🎉' : 'السؤال التالي ←'}
-                    </button>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-            answered = false;
-        }
-
-        function selectChoice(index) {
-            if (answered) return;
-            
-            const scenario = scenarios[currentScenario];
-            const choices = document.querySelectorAll('.choice');
-            const feedback = document.getElementById('feedback');
-            const nextButton = document.getElementById('next-button');
-            
-            answered = true;
-            
-            choices.forEach((choice, i) => {
-                if (i === index) {
-                    if (scenario.choices[i].correct) {
-                        choice.classList.add('correct');
-                        feedback.classList.add('correct-feedback');
-                        feedback.innerHTML = `
-                            <h3>✅ إجابة صحيحة!</h3>
-                            <p>${scenario.correctFeedback}</p>
-                        `;
-                        score += 10;
-                        document.getElementById('score').textContent = score;
-                    } else {
-                        choice.classList.add('incorrect');
-                        feedback.classList.add('incorrect-feedback');
-                        feedback.innerHTML = `
-                            <h3>❌ جرب مرة أخرى</h3>
-                            <p>${scenario.incorrectFeedback}</p>
-                        `;
-                    }
-                }
-                choice.style.pointerEvents = 'none';
-            });
-            
-            feedback.classList.add('active');
-            nextButton.classList.add('active');
-        }
-
-        function nextScenario() {
-            if (currentScenario < scenarios.length - 1) {
-                currentScenario++;
-                renderScenario();
-            } else {
-                showResults();
-            }
-        }
-
-        function showResults() {
-            const container = document.getElementById('scenarios-container');
-            const results = document.getElementById('results');
-            const maxScore = scenarios.length * 10;
-            const percentage = (score / maxScore) * 100;
-            
-            let message = '';
-            let icon = '';
-            
-            if (percentage >= 80) {
-                message = 'ممتاز! لديك فهم عميق لمنازل الإحسان وكيفية تطبيقها في العمل. واصل هذا التميز!';
-                icon = '🌟';
-            } else if (percentage >= 60) {
-                message = 'جيد جداً! لديك فهم جيد للمنازل السبعة. مع المزيد من التأمل والتطبيق ستصل للتميز.';
-                icon = '⭐';
-            } else if (percentage >= 40) {
-                message = 'جيد! هناك أساس جيد. راجع المنازل وتأمل في كيفية تطبيقها اليومي في عملك.';
-                icon = '✨';
-            } else {
-                message = 'ابدأ رحلتك! هذه فرصة رائعة لتعلم المزيد عن منازل الإحسان وتطبيقها في حياتك المهنية.';
-                icon = '🌱';
-            }
-            
-            container.style.display = 'none';
-            results.innerHTML = `
-                <div class="results-icon">${icon}</div>
-                <h2>أكملت اللعبة!</h2>
-                <div class="final-score">${score} / ${maxScore}</div>
-                <div class="results-message">${message}</div>
-                <div class="action-buttons">
-                    <button class="action-button" onclick="location.reload()">🔄 العب مرة أخرى</button>
-                    <a href="workplace_assessment.html" class="action-button">📝 قيّم نفسك</a>
-                    <a href="dashboard.html" class="action-button">📊 لوحة المعلومات</a>
-                    <a href="workplace_ihsan_main.html" class="action-button">🏠 الصفحة الرئيسية</a>
-                </div>
-            `;
-            results.classList.add('active');
-        }
-
-        window.onload = renderScenario;
-    </script>
-</body>
-</html>
